@@ -5,44 +5,36 @@
   <style>
     * {
       font-family: "Press Start 2P", cursive;
-      box-sizing: border-box;
     }
-
-    html,
     body {
       width: 100%;
       height: 100%;
       margin: 0;
       overflow: hidden;
     }
-
     body {
       background-color: black;
     }
-
     canvas {
       display: block;
       width: 100%;
       height: 100%;
     }
-
     h1 {
       margin: 0;
     }
-
     button {
       border: 0;
       cursor: pointer;
       font-size: 16px;
     }
-
     button:hover {
       background-color: #ddd;
     }
   </style>
 </head>
 
-<div style="position: relative; width: 100vw; height: 100vh">
+<div style="display: inline-block; width: 100%; height: 100vh">
   <div id="overlappingDiv" style="
       background-color: black;
       position: absolute;
@@ -55,65 +47,6 @@
       z-index: 10;
     "></div>
   <canvas></canvas>
-  <div id="characterDialogueBox" style="
-      background-color: white;
-      height: 140px;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      border-top: 4px black solid;
-      display: none;
-      padding: 12px;
-    "></div>
-
-  <div id="userInterface" style="display: none">
-    <div style="
-        background-color: white;
-        width: 250px;
-        position: absolute;
-        top: 50px;
-        left: 50px;
-        border: 4px black solid;
-        padding: 12px;
-      ">
-      <h1 style="font-size: 16px">Draggle</h1>
-      <div style="position: relative">
-        <div style="height: 5px; background-color: #ccc; margin-top: 10px"></div>
-        <div id="enemyHealthBar" style="
-            height: 5px;
-            background-color: green;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-          "></div>
-      </div>
-    </div>
-
-    <div style="
-        background-color: white;
-        width: 250px;
-        position: absolute;
-        top: 330px;
-        right: 50px;
-        border: 4px black solid;
-        padding: 12px;
-      ">
-      <h1 style="font-size: 16px">Emby</h1>
-      <div style="position: relative">
-        <div style="height: 5px; background-color: #ccc; margin-top: 10px"></div>
-        <div id="playerHealthBar" style="
-            height: 5px;
-            background-color: green;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-          "></div>
-      </div>
-    </div>
-
     <div style="
         background-color: white;
         height: 140px;
@@ -124,24 +57,14 @@
         border-top: 4px black solid;
         display: flex;
       ">
-      <div id="dialogueBox" style="
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          background-color: white;
-          padding: 12px;
-          display: none;
-          cursor: pointer;
-        ">
-        sdskfdjlk
-      </div>
       <div id="attackBox" style="
           width: 66.66%;
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-        "></div>
+        ">
+        <button>Attack1</button>
+        <button>Attack2</button>
+        </div>
       <div style="
           display: flex;
           align-items: center;
@@ -161,4 +84,3 @@
 <script src="data/collisions.js"></script>
 <script src="classes.js"></script>
 <script src="index.js"></script>
-<script src="battlescenes.js"></script>

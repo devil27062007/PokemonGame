@@ -1,11 +1,7 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
-function setCanvasSize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
+function setCanvasSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 setCanvasSize();
 
 const collisionsMap = [];
@@ -82,6 +78,7 @@ const player = new Sprite({
     image: playerDownImage,
     frames: {
         max: 4,
+        hold: 10
     },
     sprites: {
         up: playerUpImage,
@@ -96,6 +93,7 @@ window.addEventListener('resize', () => {
     setCanvasSize();
     player.position.x = canvas.width / 2 - 192 / 4 / 2;
     player.position.y = canvas.height / 2 - 68 / 2;
+    updateBattleSpritePositions();
 });
 
 const background = new Sprite({
@@ -199,11 +197,15 @@ function animate() {
                     onComplete() {
                         gsap.to('#overlappingDiv', {
                             opacity: 1,
-                            duration: 0.4
+                            duration: 0.4,
+                            onComplete() {
+                                animateBattle()
+                                gsap.to('#overlappingDiv', {
+                                    opacity: 0,
+                                    duration: 0.4
+                                })
+                            }
                         })
-
-
-                        animateBattle()
                     }
                 })
                 break
@@ -256,8 +258,8 @@ function animate() {
                     },
                 })
             ) {
-                moving = false;
-                break;
+                moving = false
+                break
             }
         }
 
@@ -283,8 +285,8 @@ function animate() {
                     },
                 })
             ) {
-                moving = false;
-                break;
+                moving = false
+                break
             }
         }
 
@@ -310,8 +312,8 @@ function animate() {
                     },
                 })
             ) {
-                moving = false;
-                break;
+                moving = false
+                break
             }
         }
 
@@ -321,12 +323,77 @@ function animate() {
             });
     }
 }
-animate();
+// animate();
+
+const battleBackgroundImage = new Image()
+battleBackgroundImage.src = './images/battleBackground.png'
+const battleBackground = new Sprite({
+    position: {
+        x: 0,
+        y: 0
+    },
+    image: battleBackgroundImage
+})
+
+const battleLayout = {
+    draggle: {
+        xRatio: 800 / 1024,
+        yRatio: 100 / 576
+    },
+    emby: {
+        xRatio: 280 / 1024,
+        yRatio: 325 / 576
+    }
+}
+
+const draggleImage = new Image()
+draggleImage.src = './images/draggleSprite.png'
+const draggle = new Sprite({
+    position: {
+        x: 800,
+        y: 100
+    },
+    image: draggleImage,
+    frames: {
+        max: 4,
+        hold: 30
+    },
+    animate: true
+})
+
+const embyImage = new Image()
+embyImage.src = './images/embySprite.png'
+const emby = new Sprite({
+    position: {
+        x: 280,
+        y: 325
+    },
+    image: embyImage,
+    frames: {
+        max: 4,
+        hold: 30
+    },
+    animate: true
+})
+
+function updateBattleSpritePositions() {
+    draggle.position.x = canvas.width * battleLayout.draggle.xRatio
+    draggle.position.y = canvas.height * battleLayout.draggle.yRatio
+    emby.position.x = canvas.width * battleLayout.emby.xRatio
+    emby.position.y = canvas.height * battleLayout.emby.yRatio
+}
+
+updateBattleSpritePositions()
 
 function animateBattle() {
     window.requestAnimationFrame(animateBattle)
-    console.log('animating battle')
+    c.drawImage(battleBackgroundImage, 0, 0, canvas.width, canvas.height)
+    draggle.draw()
+    emby.draw()
 }
+
+// animate()
+animateBattle()
 
 let lastKey = '';
 window.addEventListener('keydown', (e) => {
