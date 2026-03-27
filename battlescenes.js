@@ -120,7 +120,7 @@ function animateBattle() {
     })
 }
 
-animate()
+// animate()
 // initBattle()
 // animateBattle()
 document.querySelector('#dialogueBox').addEventListener('click', (e) => {

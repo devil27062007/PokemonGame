@@ -8,8 +8,22 @@
       box-sizing: border-box;
     }
 
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
     body {
       background-color: black;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
     }
 
     h1 {
@@ -28,7 +42,7 @@
   </style>
 </head>
 
-<div style="display: inline-block; position: relative">
+<div style="position: relative; width: 100vw; height: 100vh">
   <div id="overlappingDiv" style="
       background-color: black;
       position: absolute;
@@ -143,13 +157,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"
   integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA=="
   crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="data/audio.js"></script>
 <script src="data/battleZones.js"></script>
 <script src="data/collisions.js"></script>
-<script src="data/attack.js"></script>
-<script src="data/monster.js"></script>
-<script src="data/character.js"></script>
-<script src="data/utils.js"></script>
 <script src="classes.js"></script>
 <script src="index.js"></script>
 <script src="battlescenes.js"></script>
