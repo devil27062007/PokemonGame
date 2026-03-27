@@ -199,6 +199,7 @@ function animate() {
                             opacity: 1,
                             duration: 0.4,
                             onComplete() {
+
                                 animateBattle()
                                 gsap.to('#overlappingDiv', {
                                     opacity: 0,
@@ -214,7 +215,7 @@ function animate() {
     }
 
     if (keys.w.pressed && lastKey === 'w') {
-        player.moving = true
+        player.animate = true
         player.image = player.sprites.up
 
         for (let i = 0; i < boundaries.length; i++) {
@@ -241,7 +242,7 @@ function animate() {
                 movable.position.y += 3
             })
     } else if (keys.a.pressed && lastKey === "a") {
-        player.moving = true
+        player.animate = true
         player.image = player.sprites.left
 
         for (let i = 0; i < boundaries.length; i++) {
@@ -295,7 +296,7 @@ function animate() {
                 movable.position.y -= 3;
             });
     } else if (keys.d.pressed && lastKey === "d") {
-        player.moving = true
+        player.animate = true
         player.image = player.sprites.right
 
         for (let i = 0; i < boundaries.length; i++) {
@@ -358,7 +359,8 @@ const draggle = new Sprite({
         max: 4,
         hold: 30
     },
-    animate: true
+    animate: true,
+    isEnemy: true
 })
 
 const embyImage = new Image()
@@ -375,63 +377,75 @@ const emby = new Sprite({
     },
     animate: true
 })
-
+//for size
 function updateBattleSpritePositions() {
     draggle.position.x = canvas.width * battleLayout.draggle.xRatio
     draggle.position.y = canvas.height * battleLayout.draggle.yRatio
     emby.position.x = canvas.width * battleLayout.emby.xRatio
     emby.position.y = canvas.height * battleLayout.emby.yRatio
 }
-
 updateBattleSpritePositions()
 
+const renderedSprites = [draggle, emby]
 function animateBattle() {
     window.requestAnimationFrame(animateBattle)
     c.drawImage(battleBackgroundImage, 0, 0, canvas.width, canvas.height)
-    draggle.draw()
-    emby.draw()
+    renderedSprites.forEach((sprite) => {
+        sprite.draw()
+    })
 }
 
 // animate()
 animateBattle()
 
+document.querySelectorAll('button').forEach((button) => {
+    button.addEventListener('click', (e) => {
+        const selectedAttack = attacks[e.currentTarget.innerHTML]
+        emby.attack({
+            attack: selectedAttack,
+            recipient: draggle,
+            renderedSprites
+        })
+    })
+})
+
 let lastKey = '';
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
-            keys.w.pressed = true;
-            lastKey = 'w';
-            break;
+            keys.w.pressed = true
+            lastKey = 'w'
+            break
         case 'a':
-            keys.a.pressed = true;
-            lastKey = 'a';
-            break;
+            keys.a.pressed = true
+            lastKey = 'a'
+            break
 
         case 's':
-            keys.s.pressed = true;
-            lastKey = 's';
-            break;
+            keys.s.pressed = true
+            lastKey = 's'
+            break
 
         case 'd':
-            keys.d.pressed = true;
-            lastKey = 'd';
-            break;
+            keys.d.pressed = true
+            lastKey = 'd'
+            break
     }
 })
 
 window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'w':
-            keys.w.pressed = false;
-            break;
+            keys.w.pressed = false
+            break
         case 'a':
-            keys.a.pressed = false;
-            break;
+            keys.a.pressed = false
+            break
         case 's':
-            keys.s.pressed = false;
-            break;
+            keys.s.pressed = false
+            break
         case 'd':
-            keys.d.pressed = false;
-            break;
+            keys.d.pressed = false
+            break
     }
-});
+})
