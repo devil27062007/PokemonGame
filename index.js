@@ -1,15 +1,9 @@
-
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
-
 const collisionsMap = []
 for (let i = 0; i < collisions.length; i += 70) {
   collisionsMap.push(collisions.slice(i, 70 + i))
@@ -24,7 +18,7 @@ const charactersMap = []
 for (let i = 0; i < charactersMapData.length; i += 70) {
   charactersMap.push(charactersMapData.slice(i, 70 + i))
 }
-console.log(charactersMap)
+
 
 const boundaries = []
 const offset = {
@@ -74,7 +68,7 @@ charactersMap.forEach((row, i) => {
     // 1026 === villager
     if (symbol === 1026) {
       characters.push(
-        new Sprite({
+        new Character({
           position: {
             x: j * Boundary.width + offset.x,
             y: i * Boundary.height + offset.y
@@ -85,34 +79,36 @@ charactersMap.forEach((row, i) => {
             hold: 60
           },
           scale: 3,
-          animate: true
+          animate: true,
+          dialogue: ['...', 'Hey mister , Have you seen my Doggochu ?']
         })
       )
     }
     // 1031 === oldMan
     else if (symbol === 1031) {
       characters.push(
-        new Sprite({
-          position: {
-            x: j * Boundary.width + offset.x,
-            y: i * Boundary.height + offset.y
-          },
-          image: oldManImg,
-          frames: {
-            max: 4,
-            hold: 60
-          },
-          scale: 3
+        new Character({
+          position : {
+            x : j * Boundary.width + offset.x,
+            y : i * Boundary.height + offset.y
+          } ,
+          image : oldManImg,
+          frames : {
+            max : 4,
+            hold : 60
+          } ,
+          scale : 3,
+          dialogue : ['My bones hurt .']
         })
       )
     }
 
     if (symbol !== 0) {
-      boundaries.push(
-        new Boundary({
-          position: {
-            x: j * Boundary.width + offset.x,
-            y: i * Boundary.height + offset.y
+      boundaries.push (
+        new Boundary( {
+          position : {
+            x : j * Boundary.width + offset.x,
+            y : i * Boundary.height + offset.y
           }
         })
       )
@@ -140,19 +136,19 @@ playerRightImage.src = './img/playerRight.png'
 
 const player = new Sprite({
   position: {
-    x: canvas.width / 2 - 192 / 4 / 2,
-    y: canvas.height / 2 - 68 / 2
+    x : canvas.width / 2 - 192 / 4 / 2 - 250,
+    y : canvas.height / 2 - 68 / 2 - 115
+  } ,
+  image : playerDownImage,
+  frames : {
+    max : 4,
+    hold : 10
   },
-  image: playerDownImage,
-  frames: {
-    max: 4,
-    hold: 10
-  },
-  sprites: {
-    up: playerUpImage,
-    left: playerLeftImage,
-    right: playerRightImage,
-    down: playerDownImage
+  sprites : {
+    up : playerUpImage,
+    left : playerLeftImage,
+    right : playerRightImage,
+    down : playerDownImage
   }
 })
 
@@ -202,15 +198,6 @@ const renderables = [
   player,
   foreground
 ]
-
-function rectangularCollision({ rectangle1, rectangle2 }) {
-  return (
-    rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
-    rectangle1.position.x <= rectangle2.position.x + rectangle2.width &&
-    rectangle1.position.y <= rectangle2.position.y + rectangle2.height &&
-    rectangle1.position.y + rectangle1.height >= rectangle2.position.y
-  )
-}
 
 const battle = {
   initiated: false
@@ -288,6 +275,12 @@ function animate() {
     player.animate = true
     player.image = player.sprites.up
 
+    checkForCharacterCollision({
+      characters,
+      player,
+      characterOffset: { x: 0, y: 3 }
+    })
+
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
       if (
@@ -314,6 +307,12 @@ function animate() {
   } else if (keys.a.pressed && lastKey === 'a') {
     player.animate = true
     player.image = player.sprites.left
+
+    checkForCharacterCollision({
+      characters,
+      player,
+      characterOffset: { x: 3, y: 0 }
+    })
 
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
@@ -342,6 +341,12 @@ function animate() {
     player.animate = true
     player.image = player.sprites.down
 
+    checkForCharacterCollision({
+      characters,
+      player,
+      characterOffset: { x: 0, y: -3 }
+    })
+
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
       if (
@@ -369,6 +374,12 @@ function animate() {
     player.animate = true
     player.image = player.sprites.right
 
+    checkForCharacterCollision({
+      characters,
+      player,
+      characterOffset: { x: -3, y: 0 }
+    })
+
     for (let i = 0; i < boundaries.length; i++) {
       const boundary = boundaries[i]
       if (
@@ -395,10 +406,40 @@ function animate() {
   }
 }
 // animate()
-
 let lastKey = ''
 window.addEventListener('keydown', (e) => {
+  if (player.isInteracting) {
+    switch (e.key) {
+      case ' ':
+        player.interactionAsset.dialogueIndex++
+
+        const { dialogueIndex, dialogue } = player.interactionAsset
+        if (dialogueIndex <= dialogue.length - 1) {
+          document.querySelector('#characterDialogueBox').innerHTML =
+            player.interactionAsset.dialogue[dialogueIndex]
+          return
+        }
+
+        // finish conversation
+        player.isInteracting = false
+        player.interactionAsset.dialogueIndex = 0
+        document.querySelector('#characterDialogueBox').style.display = 'none'
+
+        break
+    }
+    return
+  }
+
   switch (e.key) {
+    case ' ':
+      if (!player.interactionAsset) return
+
+
+      const firstMessage = player.interactionAsset.dialogue[0]
+      document.querySelector('#characterDialogueBox').innerHTML = firstMessage
+      document.querySelector('#characterDialogueBox').style.display = 'flex'
+      player.isInteracting = true
+      break
     case 'w':
       keys.w.pressed = true
       lastKey = 'w'

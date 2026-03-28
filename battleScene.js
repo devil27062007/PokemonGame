@@ -21,9 +21,23 @@ function initBattle() {
   document.querySelector('#playerHealthBar').style.width = '100%'
   document.querySelector('#attacksBox').replaceChildren()
 
-  draggle = new Monster(monsters.Draggle)
-  emby = new Monster(monsters.Emby)
-  renderedSprites = [draggle, emby]
+  const getRelativePosition = (relX, relY) => ({
+    x: relX * canvas.width,
+    y: relY * canvas.height
+  });
+
+  const embyRel = { x: 0.40, y: 0.62 }; 
+  const draggleRel = { x: 0.80, y: 0.30 }; 
+
+  emby = new Monster({
+    ...monsters.Emby,
+    position: getRelativePosition(embyRel.x, embyRel.y)
+  });
+  draggle = new Monster({
+    ...monsters.Draggle,
+    position: getRelativePosition(draggleRel.x, draggleRel.y)
+  });
+  renderedSprites = [draggle, emby];
   queue = []
 
   emby.attacks.forEach((attack) => {
@@ -114,13 +128,32 @@ function initBattle() {
 
 function animateBattle() {
   battleAnimationId = window.requestAnimationFrame(animateBattle)
-  battleBackground.draw()
 
-  console.log(battleAnimationId)
+  // Ensure canvas is always fullscreen
+  if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
 
+  // Draw the battle background stretched to fit
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.clearRect(0, 0, canvas.width, canvas.height);
+  c.drawImage(battleBackground.image, 0, 0, canvas.width, canvas.height);
+  c.restore();
+
+  // Update monster positions responsively
+  if (emby && draggle) {
+    const embyRel = { x: 0.30, y: 0.62 };
+    const draggleRel = { x: 0.78, y: 0.21 };
+    emby.position.x = embyRel.x * canvas.width;
+    emby.position.y = embyRel.y * canvas.height;
+    draggle.position.x = draggleRel.x * canvas.width;
+    draggle.position.y = draggleRel.y * canvas.height;
+  }
   renderedSprites.forEach((sprite) => {
-    sprite.draw()
-  })
+    sprite.draw();
+  });
 }
 
 animate()
