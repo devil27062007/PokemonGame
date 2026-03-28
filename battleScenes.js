@@ -8,40 +8,20 @@ const battleBackground = new Sprite({
     image: battleBackgroundImage
 })
 
-const draggleImage = new Image()
-draggleImage.src = './images/draggleSprite.png'
-const draggle = new Sprite({
-    position: {
-        x: 800,
-        y: 100
-    },
-    image: draggleImage,
-    frames: {
-        max: 4,
-        hold: 30
-    },
-    animate: true,
-    isEnemy: true,
-    name: 'Draggle'
-})
-
-const embyImage = new Image()
-embyImage.src = './images/embySprite.png'
-const emby = new Sprite({
-    position: {
-        x: 280,
-        y: 325
-    },
-    image: embyImage,
-    frames: {
-        max: 4,
-        hold: 30
-    },
-    animate: true,
-    name: 'Emby'
-})
+const draggle = new Monster(monsters.Draggle)
+const emby = new Monster(monsters.Emby)
 
 const renderedSprites = [draggle, emby]
+
+const attackBox = document.querySelector('#attackBox')
+attackBox.replaceChildren()
+
+emby.attacks.forEach((attack) => {
+    const button = document.createElement('button')
+    button.innerHTML = attack.name
+    attackBox.append(button)
+})
+
 function animateBattle() {
     window.requestAnimationFrame(animateBattle)
     c.drawImage(battleBackgroundImage, 0, 0, canvas.width, canvas.height)
@@ -57,7 +37,7 @@ animateBattle()
 const queue = []
 
 //event listeners - attack button
-document.querySelectorAll('button').forEach((button) => {
+attackBox.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', (e) => {
         const selectedAttack = attacks[e.currentTarget.innerHTML]
         emby.attack({
@@ -66,17 +46,12 @@ document.querySelectorAll('button').forEach((button) => {
             renderedSprites
         })
 
-        queue.push(() => {
-            draggle.attack({
-                attack: attacks.Tackle,
-                recipient: emby,
-                renderedSprites
-            })
-        })
+        const randomAttack =
+            draggle.attacks[Math.floor(Math.random() * draggle.attacks.length)]
 
         queue.push(() => {
             draggle.attack({
-                attack: attacks.Fireball,
+                attack: randomAttack,
                 recipient: emby,
                 renderedSprites
             })

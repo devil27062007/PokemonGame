@@ -1,14 +1,12 @@
 class Sprite {
-    constructor( {
-        position ,
-        velocity ,
-        image ,
-        frames = { max: 1, hold: 10 } ,
-        sprites ,
-        animate = false ,
-        isEnemy = false ,
-        rotation = 0 ,
-        name
+    constructor({
+        position,
+        velocity,
+        image,
+        frames = { max: 1, hold: 10 },
+        sprites,
+        animate = false,
+        rotation = 0
     }) {
         this.position = position
         this.image = image
@@ -21,10 +19,8 @@ class Sprite {
         this.animate = animate
         this.sprites = sprites
         this.opacity = 1
-        this.health = 100
-        this.isEnemy = isEnemy
+
         this.rotation = rotation
-        this.name = name
     }
 
     draw() {
@@ -63,11 +59,40 @@ class Sprite {
             else this.frames.val = 0
         }
     }
+}
+
+class Monster extends Sprite {
+    constructor({
+        position,
+        velocity,
+        image,
+        frames = { max: 1, hold: 10 },
+        animate = false,
+        sprites,
+        rotation = 0,
+        isEnemy = false,
+        name,
+        attacks
+    }) {
+        super({
+            position,
+            velocity,
+            image,
+            frames,
+            sprites,
+            animate,
+            rotation
+        })
+        this.health = 100
+        this.isEnemy = isEnemy
+        this.name = name
+        this.attacks = attacks
+    }
 
     attack({ attack, recipient, renderedSprites }) {
         document.querySelector('#dialogueBox').style.display = 'block'
-        document.querySelector('#dialogueBox').innerHTML = 
-            this.name + ' used ' + attack.name 
+        document.querySelector('#dialogueBox').innerHTML =
+            this.name + ' used ' + attack.name
 
         let healthBar = '#enemyHealthBar'
         if (this.isEnemy) healthBar = '#playerHealthBar'
@@ -75,7 +100,7 @@ class Sprite {
         let rotation = 1
         if (this.isEnemy) rotation = -2.2
 
-        this.health -= attack.damage
+        recipient.health -= attack.damage
 
         switch (attack.name) {
             case 'Fireball':
@@ -83,22 +108,22 @@ class Sprite {
                 fireballImage.src = './images/fireball.png'
                 const fireball = new Sprite({
                     position: {
-                        x: this.position.x ,
+                        x: this.position.x,
                         y: this.position.y
                     },
-                    image: fireballImage ,
+                    image: fireballImage,
                     frames: {
-                        max: 4 ,
+                        max: 4,
                         hold: 10
                     },
-                    animate: true ,
+                    animate: true,
                     rotation
                 })
-                renderedSprites.splice( 1 , 0 , fireball)
+                renderedSprites.splice(1, 0, fireball)
 
-                gsap.to(fireball.position , {
-                    x : recipient.position.x ,
-                    y : recipient.position.y ,
+                gsap.to(fireball.position, {
+                    x: recipient.position.x,
+                    y: recipient.position.y,
                     onComplete: () => {
 
                         gsap.to(healthBar, {
@@ -112,11 +137,11 @@ class Sprite {
                             duration: 0.08
                         })
 
-                        gsap.to(recipient , {
-                            opacity : 0 ,
-                            repeat : 5 ,
-                            yoyo : true ,
-                            duration : 0.08
+                        gsap.to(recipient, {
+                            opacity: 0,
+                            repeat: 5,
+                            yoyo: true,
+                            duration: 0.08
                         })
                         renderedSprites.splice(1, 1)
                     }
@@ -129,34 +154,34 @@ class Sprite {
                 let movementDistance = 20
                 if (this.isEnemy) movementDistance = -20
 
-                tl.to(this.position , {
-                    x : this.position.x - movementDistance
+                tl.to(this.position, {
+                    x: this.position.x - movementDistance
                 })
                     .to(this.position, {
-                        x : this.position.x + movementDistance * 2 ,
-                        duration: 0.1 ,
+                        x: this.position.x + movementDistance * 2,
+                        duration: 0.1,
                         onComplete: () => {
 
-                            gsap.to(healthBar , {
-                                width : recipient.health + '%'
+                            gsap.to(healthBar, {
+                                width: recipient.health + '%'
                             })
 
-                            gsap.to( recipient.position , {
-                                x : recipient.position.x + 10 ,
-                                yoyo : true ,
-                                repeat : 5 ,
-                                duration : 0.08
+                            gsap.to(recipient.position, {
+                                x: recipient.position.x + 10,
+                                yoyo: true,
+                                repeat: 5,
+                                duration: 0.08
                             })
 
-                            gsap.to( recipient , {
-                                opacity : 0 ,
-                                repeat : 5 ,
-                                yoyo : true ,
-                                duration : 0.08
+                            gsap.to(recipient, {
+                                opacity: 0,
+                                repeat: 5,
+                                yoyo: true,
+                                duration: 0.08
                             })
                         }
                     })
-                    .to( this.position , {
+                    .to(this.position, {
                         x: this.position.x
                     })
                 break
@@ -167,14 +192,14 @@ class Sprite {
 class Boundary {
     static width = 48;
     static height = 48;
-    constructor( { position } ) {
-        this.position = position ;
-        this.width = 48 ;
-        this.height = 48 ;
+    constructor({ position }) {
+        this.position = position;
+        this.width = 48;
+        this.height = 48;
     }
 
     draw() {
-        c.fillStyle = "rgba(255,0,0,0.5)" ;
-        c.fillRect( this.position.x , this.position.y , this.width , this.height );
+        c.fillStyle = "rgba(255,0,0,0.5)";
+        c.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }
