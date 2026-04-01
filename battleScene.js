@@ -14,6 +14,7 @@ let renderedSprites
 let battleAnimationId
 let queue
 let selectionPreviewMonsters = []
+let battleLastFrameTime = 0
 
 const playerMonsterKeys = ['charmander', 'bulbasaur', 'squirtle']
 
@@ -50,7 +51,7 @@ function endBattle() {
         opacity: 1,
         onComplete: () => {
             cancelAnimationFrame(battleAnimationId)
-            animate()
+            restartOverworldAnimation()
             document.querySelector('#userInterface').style.display = 'none'
             document.querySelector('#userInterface').classList.remove('selection-mode')
 
@@ -85,13 +86,17 @@ function setupAttackButtons() {
     document.querySelector('#battleActionPanel').style.display = 'flex'
     attacksBox.replaceChildren()
 
-    playerMonster.attacks.forEach((attack) => {
+    const availableAttacks = (playerMonster.attacks || []).filter((attack) => {
+        return attack && typeof attack.name === 'string'
+    })
+
+    availableAttacks.forEach((attack) => {
         const button = document.createElement('button')
         button.innerHTML = attack.name
         attacksBox.append(button)
 
-        button.addEventListener('click', (e) => {
-            const selectedAttack = attacks[e.currentTarget.innerHTML]
+        button.addEventListener('click', () => {
+            const selectedAttack = attack
 
             playerMonster.attack({
                 attack: selectedAttack,
@@ -108,8 +113,14 @@ function setupAttackButtons() {
                         return
                     }
 
+                    const enemyAttacks = (draggle.attacks || []).filter((enemyAttack) => {
+                        return enemyAttack && typeof enemyAttack.name === 'string'
+                    })
+
+                    if (enemyAttacks.length === 0) return
+
                     const randomAttack =
-                        draggle.attacks[Math.floor(Math.random() * draggle.attacks.length)]
+                        enemyAttacks[Math.floor(Math.random() * enemyAttacks.length)]
 
                     queue.push(() => {
                         draggle.attack({
@@ -132,8 +143,8 @@ function setupAttackButtons() {
             })
         })
 
-        button.addEventListener('mouseenter', (e) => {
-            const selectedAttack = attacks[e.currentTarget.innerHTML]
+        button.addEventListener('mouseenter', () => {
+            const selectedAttack = attack
             document.querySelector('#attackType').innerHTML = selectedAttack.type
             document.querySelector('#attackType').style.color = selectedAttack.color
         })
@@ -161,7 +172,10 @@ function setupMonsterSelectionUI() {
         const monsterKey = button.dataset.monsterKey
         const monster = monsters[monsterKey]
         const label = monster.name.charAt(0).toUpperCase() + monster.name.slice(1)
-        const attackNames = monster.attacks.map((attack) => attack.name).join(', ')
+        const attackNames = (monster.attacks || [])
+            .filter((attack) => attack && typeof attack.name === 'string')
+            .map((attack) => attack.name)
+            .join(', ')
 
         const nameNode = button.querySelector('.monster-option-name')
         const attacksNode = button.querySelector('.monster-option-attacks')
@@ -181,6 +195,7 @@ function setupMonsterSelectionUI() {
 }
 
 function initBattle() {
+    battleLastFrameTime = 0
     document.querySelector('#userInterface').style.display = 'block'
     document.querySelector('#userInterface').classList.remove('selection-mode')
     document.querySelector('#dialogueBox').style.display = 'none'
@@ -222,8 +237,16 @@ function initBattle() {
     setupMonsterSelectionUI()
 }
 
-function animateBattle() {
+function animateBattle(currentTime = 0) {
     battleAnimationId = window.requestAnimationFrame(animateBattle)
+    const baseFrameDuration = 1000 / 60
+    let deltaMs = baseFrameDuration
+    if (battleLastFrameTime !== 0) {
+        deltaMs = currentTime - battleLastFrameTime
+        if (deltaMs > 250) deltaMs = baseFrameDuration
+    }
+    battleLastFrameTime = currentTime
+
     const isSelectingMonster = selectionPreviewMonsters.length > 0 && !playerMonster
 
     if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
@@ -266,7 +289,7 @@ function animateBattle() {
     }
 
     renderedSprites.forEach((sprite) => {
-        sprite.draw()
+        sprite.draw(deltaMs)
     })
 }
 

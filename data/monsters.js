@@ -13,7 +13,12 @@ const monsters = {
     },
     animate: true,
     name: 'charmander',
-    attacks: [attacks.Tackle, attacks.Fireball]
+    attacks: [
+      attacks.Tackle,
+      attacks.FlameBurst,
+      attacks.CinderHeal,
+      attacks.BlazingGuard
+    ]
   },
   squirtle: {
     position: {
@@ -29,7 +34,12 @@ const monsters = {
     },
     animate: true,
     name: 'Squirtle',
-    attacks: [attacks.Tackle, attacks.Fireball]
+    attacks: [
+      attacks.ShockWave,
+      attacks.AquaJet,
+      attacks.TidalRecover,
+      attacks.BubbleBarrier
+    ]
   },
   bulbasaur: {
     position: {
@@ -45,7 +55,12 @@ const monsters = {
     },
     animate: true,
     name: 'Bulbasaur',
-    attacks: [attacks.Tackle, attacks.Fireball]
+    attacks: [
+      attacks.PoisonStink,
+      attacks.VineWhip,
+      attacks.NatureMend,
+      attacks.LeafGuard
+    ]
   },
   Draggle: {
     position: {
@@ -62,6 +77,6 @@ const monsters = {
     animate: true,
     isEnemy: true,
     name: 'Draggle',
-    attacks: [attacks.Tackle, attacks.Fireball]
+    attacks: [attacks.Tackle, attacks.Fireball, attacks.BlazingGuard]
   }
 }

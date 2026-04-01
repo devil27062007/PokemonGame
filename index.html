@@ -62,6 +62,134 @@
       background-color: #ddd;
     }
 
+    #howToPlayBtn {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 20;
+      border: 3px solid #111;
+      background: linear-gradient(180deg, #fff9dc 0%, #f1e8b9 100%);
+      color: #111;
+      padding: 10px 14px;
+      font-size: 10px;
+      line-height: 1;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 0 #111;
+    }
+
+    #howToPlayBtn:hover {
+      background: linear-gradient(180deg, #fffce9 0%, #f8f0cb 100%);
+      transform: translateY(-1px);
+    }
+
+    #howToPlayBtn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #111;
+    }
+
+    #howToPlayOverlay {
+      position: absolute;
+      inset: 0;
+      z-index: 25;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.72);
+    }
+
+    #howToPlayOverlay.open {
+      display: flex;
+    }
+
+    #howToPlayPanel {
+      width: min(680px, 94vw);
+      max-height: 86vh;
+      overflow: auto;
+      background: #f4f1e2;
+      border: 4px solid #111;
+      box-shadow: 0 8px 0 #111;
+      padding: 18px 16px 14px;
+    }
+
+    #howToPlayHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    #howToPlayTitle {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    #closeHowToPlayBtn {
+      border: 3px solid #111;
+      background: #fff;
+      color: #111;
+      padding: 8px 10px;
+      font-size: 10px;
+      box-shadow: 0 3px 0 #111;
+    }
+
+    #closeHowToPlayBtn:hover {
+      background: #f0f0f0;
+    }
+
+    .howto-row {
+      margin: 10px 0;
+      line-height: 1.6;
+      font-size: 10px;
+    }
+
+    .howto-encounter-preview {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 3px solid #111;
+      display: grid;
+      gap: 8px;
+    }
+
+    .howto-encounter-title {
+      font-size: 10px;
+    }
+
+    .howto-encounter-images {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .howto-encounter-images img {
+      width: 72px;
+      height: 72px;
+      border: 3px solid #111;
+      background: #fff;
+      image-rendering: pixelated;
+    }
+
+    .howto-kbd {
+      display: inline-block;
+      min-width: 24px;
+      text-align: center;
+      margin-right: 6px;
+      padding: 2px 6px;
+      border: 2px solid #111;
+      background: #fff;
+    }
+
+    #attacksBox {
+      gap: 0;
+    }
+
+    #attacksBox button {
+      border: 2px solid black;
+      background: #fff;
+    }
+
     .battle-status-card {
       background-color: #f2f2f2;
       width: min(280px, 36vw);
@@ -275,6 +403,33 @@
 </head>
 
 <div id="mainContainer">
+  <button id="howToPlayBtn" type="button">HOW TO PLAY</button>
+
+  <div id="howToPlayOverlay" aria-hidden="true">
+    <div id="howToPlayPanel" role="dialog" aria-modal="true" aria-labelledby="howToPlayTitle">
+      <div id="howToPlayHeader">
+        <h2 id="howToPlayTitle">How To Play</h2>
+        <button id="closeHowToPlayBtn" type="button">CLOSE</button>
+      </div>
+
+      <div class="howto-row"><span class="howto-kbd">W</span><span class="howto-kbd">A</span><span
+          class="howto-kbd">S</span><span class="howto-kbd">D</span> Move around town</div>
+      <div class="howto-row"><span class="howto-kbd">Space</span> Talk to NPC and continue dialogue</div>
+      <div class="howto-row"><span class="howto-kbd">Mouse</span> Select attacks and continue battle text</div>
+      <div class="howto-row">Walk over encounter grass zones to trigger wild battles.</div>
+      <div class="howto-row">Pick your monster at battle start, then use damage, heal, and shield moves.</div>
+      <div class="howto-row"><span class="howto-kbd">Esc</span> Close this screen</div>
+
+      <div class="howto-encounter-preview">
+        <div class="howto-encounter-title">Encounter Zone Tiles</div>
+        <div class="howto-encounter-images">
+          <img src="./img/encounter1.png" alt="Encounter zone tile style 1" />
+          <img src="./img/encounter2.png" alt="Encounter zone tile style 2" />
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="overlappingDiv" style="
       background-color: black;
       position: absolute;
@@ -325,15 +480,15 @@
       <div id="selectionHint">Choose Your Monster</div>
       <button class="monster-option monster-option-left" data-monster-key="charmander">
         <div class="monster-option-name">Charmander</div>
-        <div class="monster-option-attacks">Tackle, Fireball</div>
+        <div class="monster-option-attacks">Flame Burst, Cinder Heal, Blazing Guard</div>
       </button>
       <button class="monster-option monster-option-mid" data-monster-key="bulbasaur">
         <div class="monster-option-name">Bulbasaur</div>
-        <div class="monster-option-attacks">Tackle, Fireball</div>
+        <div class="monster-option-attacks">Poison Stink, Nature Mend, Leaf Guard</div>
       </button>
       <button class="monster-option monster-option-right" data-monster-key="squirtle">
         <div class="monster-option-name">Squirtle</div>
-        <div class="monster-option-attacks">Tackle, Fireball</div>
+        <div class="monster-option-attacks">Shock Wave, Tidal Recover, Bubble Barrier</div>
       </button>
     </div>
 
@@ -358,7 +513,7 @@
           display: none;
           cursor: pointer;
         ">
-        sdkfjlsdajl
+        Choose an attack.
       </div>
       <div id="attacksBox" style="
           width: 66.66%;

@@ -5,6 +5,49 @@ c.imageSmoothingEnabled = false
 function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
+
+const howToPlayButton = document.querySelector('#howToPlayBtn')
+const howToPlayOverlay = document.querySelector('#howToPlayOverlay')
+const closeHowToPlayButton = document.querySelector('#closeHowToPlayBtn')
+
+function isHowToPlayOpen() {
+  return howToPlayOverlay && howToPlayOverlay.classList.contains('open')
+}
+
+function openHowToPlay() {
+  if (!howToPlayOverlay) return
+  howToPlayOverlay.classList.add('open')
+  howToPlayOverlay.setAttribute('aria-hidden', 'false')
+  resetOverworldInputState()
+}
+
+function closeHowToPlay() {
+  if (!howToPlayOverlay) return
+  howToPlayOverlay.classList.remove('open')
+  howToPlayOverlay.setAttribute('aria-hidden', 'true')
+}
+
+if (howToPlayButton) {
+  howToPlayButton.addEventListener('click', (e) => {
+    e.stopPropagation()
+    openHowToPlay()
+  })
+}
+
+if (closeHowToPlayButton) {
+  closeHowToPlayButton.addEventListener('click', (e) => {
+    e.stopPropagation()
+    closeHowToPlay()
+  })
+}
+
+if (howToPlayOverlay) {
+  howToPlayOverlay.addEventListener('click', (e) => {
+    if (e.target === howToPlayOverlay) {
+      closeHowToPlay()
+    }
+  })
+}
 const collisionsMap = []
 for (let i = 0; i < collisions.length; i += 70) {
   collisionsMap.push(collisions.slice(i, 70 + i))
@@ -204,13 +247,89 @@ const battle = {
   initiated: false
 }
 
-function animate() {
-  const animationId = window.requestAnimationFrame(animate)
-  renderables.forEach((renderable) => {
-    renderable.draw()
+const BASE_FRAME_DURATION = 1000 / 60
+const WORLD_SPEED_PER_BASE_FRAME = 3
+let lastFrameTime = 0
+
+function resetOverworldInputState() {
+  keys.w.pressed = false
+  keys.a.pressed = false
+  keys.s.pressed = false
+  keys.d.pressed = false
+  player.animate = false
+  lastKey = ''
+}
+
+function restartOverworldAnimation() {
+  lastFrameTime = 0
+  resetOverworldInputState()
+  animate()
+}
+
+function tryMoveWorld({ x, y }) {
+  checkForCharacterCollision({
+    characters,
+    player,
+    characterOffset: { x, y }
   })
 
-  let moving = true
+  for (let i = 0; i < boundaries.length; i++) {
+    const boundary = boundaries[i]
+    if (
+      rectangularCollision({
+        rectangle1: player,
+        rectangle2: {
+          ...boundary,
+          position: {
+            x: boundary.position.x + x,
+            y: boundary.position.y + y
+          }
+        }
+      })
+    ) {
+      return false
+    }
+  }
+
+  movables.forEach((movable) => {
+    movable.position.x += x
+    movable.position.y += y
+  })
+
+  return true
+}
+
+function moveWorldInSteps({ x, y }) {
+  const maxStep = WORLD_SPEED_PER_BASE_FRAME
+  const distance = Math.hypot(x, y)
+
+  if (distance === 0) return
+
+  const steps = Math.max(1, Math.ceil(distance / maxStep))
+  const stepX = x / steps
+  const stepY = y / steps
+
+  for (let i = 0; i < steps; i++) {
+    if (!tryMoveWorld({ x: stepX, y: stepY })) break
+  }
+}
+
+function animate(currentTime = 0) {
+  const animationId = window.requestAnimationFrame(animate)
+  let deltaMs = BASE_FRAME_DURATION
+  if (lastFrameTime !== 0) {
+    deltaMs = currentTime - lastFrameTime
+    if (deltaMs > 250) deltaMs = BASE_FRAME_DURATION
+  }
+  lastFrameTime = currentTime
+
+  const movementDistance =
+    WORLD_SPEED_PER_BASE_FRAME * (deltaMs / BASE_FRAME_DURATION)
+
+  renderables.forEach((renderable) => {
+    renderable.draw(deltaMs)
+  })
+
   player.animate = false
 
   if (battle.initiated) return
@@ -239,6 +358,7 @@ function animate() {
         Math.random() < 0.01
       ) {
         // deactivate current animation loop
+        resetOverworldInputState()
         window.cancelAnimationFrame(animationId)
 
         audio.Map.stop()
@@ -277,139 +397,32 @@ function animate() {
     player.animate = true
     player.image = player.sprites.up
 
-    checkForCharacterCollision({
-      characters,
-      player,
-      characterOffset: { x: 0, y: 3 }
-    })
-
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (
-        rectangularCollision({
-          rectangle1: player,
-          rectangle2: {
-            ...boundary,
-            position: {
-              x: boundary.position.x,
-              y: boundary.position.y + 3
-            }
-          }
-        })
-      ) {
-        moving = false
-        break
-      }
-    }
-
-    if (moving)
-      movables.forEach((movable) => {
-        movable.position.y += 3
-      })
+    moveWorldInSteps({ x: 0, y: movementDistance })
   } else if (keys.a.pressed && lastKey === 'a') {
     player.animate = true
     player.image = player.sprites.left
 
-    checkForCharacterCollision({
-      characters,
-      player,
-      characterOffset: { x: 3, y: 0 }
-    })
-
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (
-        rectangularCollision({
-          rectangle1: player,
-          rectangle2: {
-            ...boundary,
-            position: {
-              x: boundary.position.x + 3,
-              y: boundary.position.y
-            }
-          }
-        })
-      ) {
-        moving = false
-        break
-      }
-    }
-
-    if (moving)
-      movables.forEach((movable) => {
-        movable.position.x += 3
-      })
+    moveWorldInSteps({ x: movementDistance, y: 0 })
   } else if (keys.s.pressed && lastKey === 's') {
     player.animate = true
     player.image = player.sprites.down
 
-    checkForCharacterCollision({
-      characters,
-      player,
-      characterOffset: { x: 0, y: -3 }
-    })
-
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (
-        rectangularCollision({
-          rectangle1: player,
-          rectangle2: {
-            ...boundary,
-            position: {
-              x: boundary.position.x,
-              y: boundary.position.y - 3
-            }
-          }
-        })
-      ) {
-        moving = false
-        break
-      }
-    }
-
-    if (moving)
-      movables.forEach((movable) => {
-        movable.position.y -= 3
-      })
+    moveWorldInSteps({ x: 0, y: -movementDistance })
   } else if (keys.d.pressed && lastKey === 'd') {
     player.animate = true
     player.image = player.sprites.right
 
-    checkForCharacterCollision({
-      characters,
-      player,
-      characterOffset: { x: -3, y: 0 }
-    })
-
-    for (let i = 0; i < boundaries.length; i++) {
-      const boundary = boundaries[i]
-      if (
-        rectangularCollision({
-          rectangle1: player,
-          rectangle2: {
-            ...boundary,
-            position: {
-              x: boundary.position.x - 3,
-              y: boundary.position.y
-            }
-          }
-        })
-      ) {
-        moving = false
-        break
-      }
-    }
-
-    if (moving)
-      movables.forEach((movable) => {
-        movable.position.x -= 3
-      })
+    moveWorldInSteps({ x: -movementDistance, y: 0 })
   }
 }
 // animate()
 let lastKey = ''
 window.addEventListener('keydown', (e) => {
+  if (isHowToPlayOpen()) {
+    if (e.key === 'Escape') closeHowToPlay()
+    return
+  }
+
   if (player.isInteracting) {
     switch (e.key) {
       case ' ':
@@ -481,7 +494,11 @@ window.addEventListener('keyup', (e) => {
 })
 
 let clicked = false
-addEventListener('click', () => {
+addEventListener('click', (e) => {
+  if (e.target && (e.target.closest('#howToPlayOverlay') || e.target.closest('#howToPlayBtn'))) {
+    return
+  }
+
   if (!clicked && !battle.initiated) {
     audio.Map.play()
     clicked = true
