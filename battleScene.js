@@ -9,7 +9,7 @@ const battleBackground = new Sprite({
 })
 
 let draggle
-let emby
+let charmander
 let renderedSprites
 let battleAnimationId
 let queue
@@ -17,30 +17,45 @@ let queue
 function initBattle() {
   document.querySelector('#userInterface').style.display = 'block'
   document.querySelector('#dialogueBox').style.display = 'none'
-  document.querySelector('#enemyHealthBar').style.width = '100%'
-  document.querySelector('#playerHealthBar').style.width = '100%'
   document.querySelector('#attacksBox').replaceChildren()
+  document.querySelector('#battleEffects').replaceChildren()
 
   const getRelativePosition = (relX, relY) => ({
     x: relX * canvas.width,
     y: relY * canvas.height
   });
 
-  const embyRel = { x: 0.40, y: 0.62 }; 
-  const draggleRel = { x: 0.80, y: 0.30 }; 
+  const charmanderRel = { x: 0.40, y: 0.62 };
+  const draggleRel = { x: 0.80, y: 0.30 };
 
-  emby = new Monster({
-    ...monsters.Emby,
-    position: getRelativePosition(embyRel.x, embyRel.y)
+  charmander = new Monster({
+    ...monsters.charmander,
+    position: getRelativePosition(charmanderRel.x, charmanderRel.y)
   });
   draggle = new Monster({
     ...monsters.Draggle,
     position: getRelativePosition(draggleRel.x, draggleRel.y)
   });
-  renderedSprites = [draggle, emby];
+
+  updateMonsterHealthUI({
+    healthBarSelector: '#enemyHealthBar',
+    healthValueSelector:'#enemyHealthValue',
+    currentHealth : draggle.maxHealth ,
+    animate : false
+  })
+
+  updateMonsterHealthUI({
+    healthBarSelector: '#playerHealthBar',
+    healthValueSelector: '#playerHealthValue',
+    currentHealth: charmander.health ,
+    maxHealth: charmander.maxHealth,
+    animate: false
+  })
+  
+  renderedSprites = [draggle, charmander];
   queue = []
 
-  emby.attacks.forEach((attack) => {
+  charmander.attacks.forEach((attack) => {
     const button = document.createElement('button')
     button.innerHTML = attack.name
     document.querySelector('#attacksBox').append(button)
@@ -50,7 +65,7 @@ function initBattle() {
   document.querySelectorAll('button').forEach((button) => {
     button.addEventListener('click', (e) => {
       const selectedAttack = attacks[e.currentTarget.innerHTML]
-      emby.attack({
+      charmander.attack({
         attack: selectedAttack,
         recipient: draggle,
         renderedSprites
@@ -87,13 +102,13 @@ function initBattle() {
       queue.push(() => {
         draggle.attack({
           attack: randomAttack,
-          recipient: emby,
+          recipient: charmander,
           renderedSprites
         })
 
-        if (emby.health <= 0) {
+        if (charmander.health <= 0) {
           queue.push(() => {
-            emby.faint()
+            charmander.faint()
           })
 
           queue.push(() => {
@@ -143,11 +158,11 @@ function animateBattle() {
   c.restore();
 
   // Update monster positions responsively
-  if (emby && draggle) {
-    const embyRel = { x: 0.30, y: 0.62 };
+  if (charmander && draggle) {
+    const charmanderRel = { x: 0.30, y: 0.62 };
     const draggleRel = { x: 0.78, y: 0.21 };
-    emby.position.x = embyRel.x * canvas.width;
-    emby.position.y = embyRel.y * canvas.height;
+    charmander.position.x = charmanderRel.x * canvas.width;
+    charmander.position.y = charmanderRel.y * canvas.height;
     draggle.position.x = draggleRel.x * canvas.width;
     draggle.position.y = draggleRel.y * canvas.height;
   }

@@ -95,7 +95,8 @@ class Monster extends Sprite {
     rotation = 0,
     isEnemy = false,
     name,
-    attacks
+    attacks,
+    maxHealth = 100
   }) {
     super({
       position,
@@ -106,7 +107,8 @@ class Monster extends Sprite {
       animate,
       rotation
     })
-    this.health = 100
+    this.maxHealth = maxHealth
+    this.health = maxHealth
     this.isEnemy = isEnemy
     this.name = name
     this.attacks = attacks
@@ -130,13 +132,45 @@ class Monster extends Sprite {
       this.name + ' used ' + attack.name
 
     let healthBar = '#enemyHealthBar'
-    if (this.isEnemy) healthBar = '#playerHealthBar'
+    let healthValue = '#enemyHealthValue'
+    if (this.isEnemy) {
+      healthBar = '#playerHealthBar'
+      healthValue = '#playerHealthValue'
+    }
 
     let rotation = 1
     if (this.isEnemy) rotation = -2.2
 
-    recipient.health -= attack.damage
+    const applyHitEffects = (hitSound) => {
+      hitSound.play()
+      recipient.health = Math.max(0, recipient.health - attack.damage)
 
+      updateMonsterHealthUI({
+        healthBarSelector: healthBar,
+        healthValueSelector: healthValue,
+        currentHealth: recipient.health,
+        maxHealth: recipient.maxHealth
+      })
+
+      showDamagePopup({
+        amount: attack.damage,
+        recipient
+      })
+
+      gsap.to(recipient.position, {
+        x: recipient.position.x + 10,
+        yoyo: true,
+        repeat: 5,
+        duration: 0.05
+      })
+
+      gsap.to(recipient, {
+        opacity: 0,
+        yoyo: true,
+        repeat: 5,
+        duration: 0.08
+      })
+    }
     switch (attack.name) {
       case 'Fireball':
         audio.initFireball.play()
@@ -161,25 +195,7 @@ class Monster extends Sprite {
           x: recipient.position.x,
           y: recipient.position.y,
           onComplete: () => {
-            // Enemy actually gets hit
-            audio.fireballHit.play()
-            gsap.to(healthBar, {
-              width: recipient.health + '%'
-            })
-
-            gsap.to(recipient.position, {
-              x: recipient.position.x + 10,
-              yoyo: true,
-              repeat: 5,
-              duration: 0.08
-            })
-
-            gsap.to(recipient, {
-              opacity: 0,
-              repeat: 5,
-              yoyo: true,
-              duration: 0.08
-            })
+            applyHitEffects(audio.fireballHit)
             renderedSprites.splice(1, 1)
           }
         })
@@ -198,25 +214,7 @@ class Monster extends Sprite {
             x: this.position.x + movementDistance * 2,
             duration: 0.1,
             onComplete: () => {
-              // Enemy actually gets hit
-              audio.tackleHit.play()
-              gsap.to(healthBar, {
-                width: recipient.health + '%'
-              })
-
-              gsap.to(recipient.position, {
-                x: recipient.position.x + 10,
-                yoyo: true,
-                repeat: 5,
-                duration: 0.08
-              })
-
-              gsap.to(recipient, {
-                opacity: 0,
-                repeat: 5,
-                yoyo: true,
-                duration: 0.08
-              })
+              applyHitEffects(audio.tackleHit)
             }
           })
           .to(this.position, {

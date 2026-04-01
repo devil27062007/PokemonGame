@@ -1,18 +1,18 @@
 const monsters = {
-  Emby: {
+  charmander: {
     position: {
       x: 280,
       y: 325
     },
     image: {
-      src: './img/embySprite.png'
+      src: './img/charmanderSprite.png'
     },
     frames: {
       max: 4,
       hold: 30
     },
     animate: true,
-    name: 'Emby',
+    name: 'charmander',
     attacks: [attacks.Tackle, attacks.Fireball]
   },
   Draggle: {

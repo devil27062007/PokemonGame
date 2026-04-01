@@ -7,15 +7,16 @@
       font-family: 'Press Start 2P', cursive;
       box-sizing: border-box;
     }
-    html ,
+
+    html,
     body {
-      height : 100% ;
-      margin : 0 ;
-      padding : 0 ;
-      width : 100vw;
-      height : 100vh ;
-      overflow : hidden ;
-      background : black ;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: black;
     }
 
     body {
@@ -60,6 +61,88 @@
     button:hover {
       background-color: #ddd;
     }
+
+    .battle-status-card {
+      background-color: #f2f2f2;
+      width: min(280px, 36vw);
+      position: absolute;
+      border: 4px black solid;
+      padding: 10px 12px 12px;
+      z-index: 2;
+    }
+
+    .battle-status-card h1 {
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .battle-status-top {
+      top: 5vh;
+      left: 3vw;
+    }
+
+    .battle-status-bottom {
+      right: 3vw;
+      bottom: 22vh;
+    }
+
+    .hp-track {
+      position: relative;
+      height: 8px;
+      background-color: #d5d5d5;
+      margin-top: 10px;
+      border: 1px solid #9f9f9f;
+      overflow: hidden;
+    }
+
+    .hp-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #28b500 0%, #129500 100%);
+    }
+
+    .hp-value {
+      margin-top: 8px;
+      text-align: right;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    #battleEffects {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      overflow: hidden;
+    }
+
+    .damage-popup {
+      position: absolute;
+      color: #111;
+      font-size: 16px;
+      font-weight: 700;
+      text-shadow: -2px 0 #fff, 2px 0 #fff, 0 2px #fff;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 900px) {
+      .battle-status-card {
+        width: min(220px, 44vw);
+      }
+
+      .battle-status-bottom {
+        bottom: 20vh;
+      }
+
+      .battle-status-card h1 {
+        font-size: 12px;
+      }
+
+      .hp-value {
+        font-size: 10px;
+      }
+    }
   </style>
 </head>
 
@@ -91,52 +174,24 @@
 
   <div id="userInterface" style="display: none">
     <!-- Represents health bar of draggle (enemy) -->
-    <div style="
-        background-color: white;
-        width: 250px;
-        position: absolute;
-        top: 50px;
-        left: 50px;
-        border: 4px black solid;
-        padding: 12px;
-      ">
+    <div class="battle-status-card battle-status-top">
       <h1 style="font-size: 16px">Draggle</h1>
-      <div style="position: relative">
-        <div style="height: 5px; background-color: #ccc; margin-top: 10px"></div>
-        <div id="enemyHealthBar" style="
-            height: 5px;
-            background-color: green;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-          "></div>
+      <div class="hp-track">
+        <div id="enemyHealthBar" class="hp-fill"></div>
       </div>
+      <div id="enemyHealthValue" class="hp-value">100 / 100 HP</div>
     </div>
 
-    <!-- Represents health bar of emby (us) -->
-    <div style="
-        background-color: white;
-        width: 250px;
-        position: absolute;
-        top: 430px;
-        right: 50px;
-        border: 4px black solid;
-        padding: 12px;
-      ">
-      <h1 style="font-size: 16px">Emby</h1>
-      <div style="position: relative">
-        <div style="height: 5px; background-color: #ccc; margin-top: 10px"></div>
-        <div id="playerHealthBar" style="
-            height: 5px;
-            background-color: green;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-          "></div>
+    <!-- Represents health bar of charmander (us) -->
+    <div class="battle-status-card battle-status-bottom">
+      <h1 style="font-size: 16px">charmander</h1>
+      <div class="hp-track">
+        <div id="playerHealthBar" class="hp-fill"></div>
       </div>
+      <div id="playerHealthValue" class="hp-value">100 / 100 HP</div>
     </div>
+
+    <div id="battleEffects"></div>
 
     <div style="
         background-color: white;
@@ -180,13 +235,11 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"
   integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"></script>
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"
   integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ=="
-  crossorigin="anonymous" 
-  referrerpolicy="no-referrer"></script>
-  
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script src="data/audio.js"></script>
 <script src="js/utils.js"></script>
 <script src="data/battleZones.js"></script>
