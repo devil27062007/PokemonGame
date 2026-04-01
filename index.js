@@ -157,19 +157,45 @@ if (howToPlayOverlay) {
     }
   })
 }
+
+const collisionsData =
+  typeof collisions !== 'undefined' && Array.isArray(collisions)
+    ? collisions
+    : Array.isArray(window.collisions)
+      ? window.collisions
+      : []
+
+const battleZonesDataset =
+  typeof battleZonesData !== 'undefined' && Array.isArray(battleZonesData)
+    ? battleZonesData
+    : Array.isArray(window.battleZonesData)
+      ? window.battleZonesData
+      : []
+
+const charactersDataset =
+  typeof charactersMapData !== 'undefined' && Array.isArray(charactersMapData)
+    ? charactersMapData
+    : Array.isArray(window.charactersMapData)
+      ? window.charactersMapData
+      : []
+
+if (battleZonesDataset.length === 0) {
+  console.warn('battleZonesData missing. Battles will be disabled until data/battleZones.js loads correctly.')
+}
+
 const collisionsMap = []
-for (let i = 0; i < collisions.length; i += 70) {
-  collisionsMap.push(collisions.slice(i, 70 + i))
+for (let i = 0; i < collisionsData.length; i += 70) {
+  collisionsMap.push(collisionsData.slice(i, 70 + i))
 }
 
 const battleZonesMap = []
-for (let i = 0; i < battleZonesData.length; i += 70) {
-  battleZonesMap.push(battleZonesData.slice(i, 70 + i))
+for (let i = 0; i < battleZonesDataset.length; i += 70) {
+  battleZonesMap.push(battleZonesDataset.slice(i, 70 + i))
 }
 
 const charactersMap = []
-for (let i = 0; i < charactersMapData.length; i += 70) {
-  charactersMap.push(charactersMapData.slice(i, 70 + i))
+for (let i = 0; i < charactersDataset.length; i += 70) {
+  charactersMap.push(charactersDataset.slice(i, 70 + i))
 }
 
 
