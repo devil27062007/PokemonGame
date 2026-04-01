@@ -2,7 +2,46 @@ const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 c.imageSmoothingEnabled = false
 
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+const PLAYER_FRAME_WIDTH = 192 / 4
+const PLAYER_FRAME_HEIGHT = 68
+const PLAYER_SCREEN_OFFSET = {
+  x: -250,
+  y: -115
+}
+
+let player
+let movables = []
+
+function updatePlayerScreenPosition({ preserveWorldPosition = false } = {}) {
+  if (!player) return
+
+  const previousPosition = {
+    x: player.position.x,
+    y: player.position.y
+  }
+
+  player.position.x = canvas.width / 2 - PLAYER_FRAME_WIDTH / 2 + PLAYER_SCREEN_OFFSET.x
+  player.position.y = canvas.height / 2 - PLAYER_FRAME_HEIGHT / 2 + PLAYER_SCREEN_OFFSET.y
+
+  if (!preserveWorldPosition || movables.length === 0) return
+
+  const deltaX = player.position.x - previousPosition.x
+  const deltaY = player.position.y - previousPosition.y
+
+  if (deltaX === 0 && deltaY === 0) return
+
+  movables.forEach((movable) => {
+    movable.position.x += deltaX
+    movable.position.y += deltaY
+  })
+}
+
+function resizeCanvas() {
+  const hasInitializedPlayer = Boolean(player)
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+  updatePlayerScreenPosition({ preserveWorldPosition: hasInitializedPlayer })
+}
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
@@ -358,10 +397,10 @@ playerLeftImage.src = './img/playerLeft.png'
 const playerRightImage = new Image()
 playerRightImage.src = './img/playerRight.png'
 
-const player = new Sprite({
+player = new Sprite({
   position: {
-    x: canvas.width / 2 - 192 / 4 / 2 - 250,
-    y: canvas.height / 2 - 68 / 2 - 115
+    x: 0,
+    y: 0
   },
   image: playerDownImage,
   frames: {
@@ -375,6 +414,8 @@ const player = new Sprite({
     down: playerDownImage
   }
 })
+
+updatePlayerScreenPosition()
 
 const background = new Sprite({
   position: {
@@ -407,7 +448,7 @@ const keys = {
   }
 }
 
-const movables = [
+movables = [
   background,
   ...boundaries,
   foreground,
@@ -425,6 +466,71 @@ const renderables = [
 
 const battle = {
   initiated: false
+}
+
+let hasResolvedInitialSpawn = false
+
+function isPlayerCollidingAtCurrentPosition() {
+  if (!player.width || !player.height) return false
+
+  for (let i = 0; i < boundaries.length; i++) {
+    if (
+      rectangularCollision({
+        rectangle1: player,
+        rectangle2: boundaries[i]
+      })
+    ) {
+      return true
+    }
+  }
+
+  return false
+}
+
+function shiftWorld({ x, y }) {
+  movables.forEach((movable) => {
+    movable.position.x += x
+    movable.position.y += y
+  })
+}
+
+function canPlaceSpawnWithWorldShift({ x, y }) {
+  shiftWorld({ x, y })
+  const isSafe = !isPlayerCollidingAtCurrentPosition()
+  shiftWorld({ x: -x, y: -y })
+  return isSafe
+}
+
+function resolveInitialSpawnCollision() {
+  if (hasResolvedInitialSpawn) return
+  if (!player.width || !player.height) return
+
+  hasResolvedInitialSpawn = true
+
+  if (!isPlayerCollidingAtCurrentPosition()) return
+
+  const step = getWorldSpeedPerBaseFrame() * 3
+  const attempts = []
+  const maxRings = 12
+
+  for (let ring = 1; ring <= maxRings; ring++) {
+    const distance = step * ring
+    attempts.push({ x: 0, y: distance })
+    attempts.push({ x: distance, y: 0 })
+    attempts.push({ x: -distance, y: 0 })
+    attempts.push({ x: 0, y: -distance })
+    attempts.push({ x: distance, y: distance })
+    attempts.push({ x: -distance, y: distance })
+    attempts.push({ x: distance, y: -distance })
+    attempts.push({ x: -distance, y: -distance })
+  }
+
+  for (let i = 0; i < attempts.length; i++) {
+    const attempt = attempts[i]
+    if (!canPlaceSpawnWithWorldShift(attempt)) continue
+    shiftWorld(attempt)
+    return
+  }
 }
 
 function ensureTownMapAudio() {
@@ -518,6 +624,8 @@ function animate(currentTime = 0) {
 
   const movementDistance =
     getWorldSpeedPerBaseFrame() * (deltaMs / baseFrameDuration)
+
+  resolveInitialSpawnCollision()
 
   c.clearRect(0, 0, canvas.width, canvas.height)
   if (worldBackdropImage.complete && worldBackdropImage.naturalWidth > 0) {
