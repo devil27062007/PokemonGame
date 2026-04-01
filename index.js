@@ -201,7 +201,7 @@ const charactersDataset =
       : []
 
 if (battleZonesDataset.length === 0) {
-  console.warn('battleZonesData missing. Battles will be disabled until data/battleZones.js loads correctly.')
+  console.warn('battleZonesData missing. Battles will be disabled until data/battlezones.js loads correctly.')
 }
 
 const collisionsMap = []
