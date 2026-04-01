@@ -26,7 +26,7 @@ The battle start when you walk on the encounter zones .
 |-----|--------|
 | W / A / S / D | Move |
 | Space | Talk / Continue dialogue |
-| Mouse Click | Attack / Continue battle messages and Enable game Audio|
+| Mouse Click | Attack / Continue battle messages |
 
 ---
 

@@ -39,6 +39,112 @@
       justify-content: center;
     }
 
+    #loadingScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(91, 208, 197, 0.35), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255, 233, 160, 0.34), transparent 40%),
+        repeating-linear-gradient(0deg,
+          #d9f8f2,
+          #d9f8f2 6px,
+          #c6efe7 6px,
+          #c6efe7 12px);
+      transition: opacity 0.35s ease;
+    }
+
+    #loadingScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-card {
+      width: min(560px, 92vw);
+      border: 4px solid #111;
+      background: #fff8dc;
+      box-shadow: 0 10px 0 #111;
+      padding: 20px 18px 16px;
+      color: #111;
+    }
+
+    .loading-title {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    .loading-subtitle {
+      margin: 10px 0 12px;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .loading-bar-track {
+      width: 100%;
+      height: 18px;
+      border: 3px solid #111;
+      background: #f8fffd;
+      overflow: hidden;
+    }
+
+    .loading-bar-fill {
+      width: 0%;
+      height: 100%;
+      background:
+        repeating-linear-gradient(90deg,
+          #1e9e9d,
+          #1e9e9d 10px,
+          #43c3c1 10px,
+          #43c3c1 20px);
+      transition: width 0.2s ease;
+    }
+
+    .loading-meta {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 9px;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .loading-dot {
+      width: 8px;
+      height: 8px;
+      border: 2px solid #111;
+      background: #fff;
+      animation: loadingPulse 0.8s steps(1, end) infinite;
+    }
+
+    .loading-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes loadingPulse {
+
+      0%,
+      100% {
+        background: #fff;
+      }
+
+      50% {
+        background: #43c3c1;
+      }
+    }
+
     canvas {
       display: block;
       width: 100vw;
@@ -142,6 +248,22 @@
       margin: 10px 0;
       line-height: 1.6;
       font-size: 10px;
+    }
+
+    .howto-encounter-row {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .howto-encounter-text {
+      font-size: 10px;
+      line-height: 1.6;
+      flex: 1;
+      min-width: 210px;
     }
 
     .howto-encounter-preview {
@@ -403,6 +525,24 @@
 </head>
 
 <div id="mainContainer">
+  <div id="loadingScreen" role="status" aria-live="polite" aria-label="Loading game assets">
+    <div class="loading-card">
+      <h1 class="loading-title">POKEMON FLASH</h1>
+      <div id="loadingStatus" class="loading-subtitle">Loading images and audio assets...</div>
+      <div class="loading-bar-track">
+        <div id="loadingBarFill" class="loading-bar-fill"></div>
+      </div>
+      <div class="loading-meta">
+        <span id="loadingPercent">0%</span>
+        <span class="loading-dots" aria-hidden="true">
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
   <button id="howToPlayBtn" type="button">HOW TO PLAY</button>
 
   <div id="howToPlayOverlay" aria-hidden="true">
@@ -416,17 +556,15 @@
           class="howto-kbd">S</span><span class="howto-kbd">D</span> Move around town</div>
       <div class="howto-row"><span class="howto-kbd">Space</span> Talk to NPC and continue dialogue</div>
       <div class="howto-row"><span class="howto-kbd">Mouse</span> Select attacks and continue battle text</div>
-      <div class="howto-row">Walk over encounter grass zones to trigger wild battles.</div>
-      <div class="howto-row">Pick your monster at battle start, then use damage, heal, and shield moves.</div>
-      <div class="howto-row"><span class="howto-kbd">Esc</span> Close this screen</div>
-
-      <div class="howto-encounter-preview">
-        <div class="howto-encounter-title">Encounter Zone Tiles</div>
+      <div class="howto-encounter-row">
+        <div class="howto-encounter-text">Walk over encounter grass zones to trigger wild battles.</div>
         <div class="howto-encounter-images">
           <img src="./img/encounter1.png" alt="Encounter zone tile style 1" />
           <img src="./img/encounter2.png" alt="Encounter zone tile style 2" />
         </div>
       </div>
+      <div class="howto-row">Pick your monster at battle start, then use damage, heal, and shield moves.</div>
+      <div class="howto-row"><span class="howto-kbd">Esc</span> Close this screen</div>
     </div>
   </div>
 

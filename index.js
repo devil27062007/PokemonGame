@@ -9,6 +9,115 @@ window.addEventListener('resize', resizeCanvas);
 const howToPlayButton = document.querySelector('#howToPlayBtn')
 const howToPlayOverlay = document.querySelector('#howToPlayOverlay')
 const closeHowToPlayButton = document.querySelector('#closeHowToPlayBtn')
+const loadingScreen = document.querySelector('#loadingScreen')
+const loadingStatus = document.querySelector('#loadingStatus')
+const loadingBarFill = document.querySelector('#loadingBarFill')
+const loadingPercent = document.querySelector('#loadingPercent')
+
+const imageAssetPaths = [
+  './img/Pellet Town.png',
+  './img/foregroundObjects.png',
+  './img/playerDown.png',
+  './img/playerUp.png',
+  './img/playerLeft.png',
+  './img/playerRight.png',
+  './img/battleBackground.png',
+  './img/bg.png',
+  './img/villager/Idle.png',
+  './img/oldMan/Idle.png',
+  './img/charmanderSprite.png',
+  './img/squirtle.png',
+  './img/bulbasaur.png',
+  './img/draggleSprite.png',
+  './img/fireball.png',
+  './img/encounter1.png',
+  './img/encounter2.png'
+]
+
+const audioAssetHowls = Object.values(audio || {}).filter((value) => {
+  return value && typeof value.once === 'function'
+})
+
+function updateLoadingProgress(done, total, label) {
+  const safeTotal = Math.max(1, total)
+  const percent = Math.min(100, Math.round((done / safeTotal) * 100))
+  if (loadingBarFill) loadingBarFill.style.width = `${percent}%`
+  if (loadingPercent) loadingPercent.textContent = `${percent}%`
+  if (loadingStatus && label) loadingStatus.textContent = label
+}
+
+function loadImageAsset(path) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve({ ok: true, path })
+    img.onerror = () => resolve({ ok: false, path })
+    img.src = path
+  })
+}
+
+function loadHowlAsset(howl, label) {
+  return new Promise((resolve) => {
+    const finish = (ok) => resolve({ ok, label })
+
+    if (howl.state && howl.state() === 'loaded') {
+      finish(true)
+      return
+    }
+
+    howl.once('load', () => finish(true))
+    howl.once('loaderror', () => finish(false))
+
+    try {
+      howl.load()
+    } catch (error) {
+      finish(false)
+    }
+  })
+}
+
+async function preloadGameAssets() {
+  const uniqueImageAssets = [...new Set(imageAssetPaths)]
+  const totalAssets = uniqueImageAssets.length + audioAssetHowls.length
+  let doneAssets = 0
+
+  updateLoadingProgress(0, totalAssets, 'Loading images and audio assets...')
+
+  for (const imagePath of uniqueImageAssets) {
+    await loadImageAsset(imagePath)
+    doneAssets++
+    updateLoadingProgress(doneAssets, totalAssets, `Loading image: ${imagePath.split('/').pop()}`)
+  }
+
+  for (const [index, howl] of audioAssetHowls.entries()) {
+    await loadHowlAsset(howl, `audio-${index}`)
+    doneAssets++
+    updateLoadingProgress(doneAssets, totalAssets, `Loading audio ${index + 1}/${audioAssetHowls.length}...`)
+  }
+
+  updateLoadingProgress(totalAssets, totalAssets, 'Loading complete. Starting game...')
+}
+
+let hasStartedGame = false
+
+async function startGame() {
+  if (hasStartedGame) return
+  hasStartedGame = true
+
+  try {
+    await preloadGameAssets()
+  } catch (error) {
+    if (loadingStatus) loadingStatus.textContent = 'Some assets failed, starting anyway...'
+  }
+
+  setTimeout(() => {
+    if (loadingScreen) {
+      loadingScreen.classList.add('hidden')
+    }
+    animate()
+  }, 220)
+}
+
+window.startGame = startGame
 
 function isHowToPlayOpen() {
   return howToPlayOverlay && howToPlayOverlay.classList.contains('open')
@@ -163,6 +272,9 @@ charactersMap.forEach((row, i) => {
 const image = new Image()
 image.src = './img/Pellet Town.png'
 
+const worldBackdropImage = new Image()
+worldBackdropImage.src = './img/bg.png'
+
 const foregroundImage = new Image()
 foregroundImage.src = './img/foregroundObjects.png'
 
@@ -247,6 +359,13 @@ const battle = {
   initiated: false
 }
 
+function ensureTownMapAudio() {
+  if (battle.initiated) return
+  if (!audio.Map.playing()) {
+    audio.Map.play()
+  }
+}
+
 const BASE_FRAME_DURATION = 1000 / 60
 const WORLD_SPEED_PER_BASE_FRAME = 3
 let lastFrameTime = 0
@@ -325,6 +444,14 @@ function animate(currentTime = 0) {
 
   const movementDistance =
     WORLD_SPEED_PER_BASE_FRAME * (deltaMs / BASE_FRAME_DURATION)
+
+  c.clearRect(0, 0, canvas.width, canvas.height)
+  if (worldBackdropImage.complete && worldBackdropImage.naturalWidth > 0) {
+    c.drawImage(worldBackdropImage, 0, 0, canvas.width, canvas.height)
+  } else {
+    c.fillStyle = 'black'
+    c.fillRect(0, 0, canvas.width, canvas.height)
+  }
 
   renderables.forEach((renderable) => {
     renderable.draw(deltaMs)
@@ -418,6 +545,8 @@ function animate(currentTime = 0) {
 // animate()
 let lastKey = ''
 window.addEventListener('keydown', (e) => {
+  ensureTownMapAudio()
+
   if (isHowToPlayOpen()) {
     if (e.key === 'Escape') closeHowToPlay()
     return
@@ -493,14 +622,6 @@ window.addEventListener('keyup', (e) => {
   }
 })
 
-let clicked = false
-addEventListener('click', (e) => {
-  if (e.target && (e.target.closest('#howToPlayOverlay') || e.target.closest('#howToPlayBtn'))) {
-    return
-  }
-
-  if (!clicked && !battle.initiated) {
-    audio.Map.play()
-    clicked = true
-  }
-})
+window.addEventListener('pointerdown', ensureTownMapAudio)
+window.addEventListener('touchstart', ensureTownMapAudio)
+window.addEventListener('mousedown', ensureTownMapAudio)

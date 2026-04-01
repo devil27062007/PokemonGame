@@ -293,7 +293,11 @@ function animateBattle(currentTime = 0) {
     })
 }
 
-animate()
+if (typeof window.startGame === 'function') {
+    window.startGame()
+} else {
+    animate()
+}
 
 document.querySelector('#dialogueBox').addEventListener('click', (e) => {
     if (queue.length > 0) {
