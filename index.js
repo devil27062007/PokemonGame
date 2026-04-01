@@ -13,6 +13,7 @@ const loadingScreen = document.querySelector('#loadingScreen')
 const loadingStatus = document.querySelector('#loadingStatus')
 const loadingBarFill = document.querySelector('#loadingBarFill')
 const loadingPercent = document.querySelector('#loadingPercent')
+let loadingTextAnimationId = null
 
 const imageAssetPaths = [
   './img/Pellet Town.png',
@@ -43,7 +44,24 @@ function updateLoadingProgress(done, total, label) {
   const percent = Math.min(100, Math.round((done / safeTotal) * 100))
   if (loadingBarFill) loadingBarFill.style.width = `${percent}%`
   if (loadingPercent) loadingPercent.textContent = `${percent}%`
-  if (loadingStatus && label) loadingStatus.textContent = label
+}
+
+function startLoadingTextAnimation() {
+  if (!loadingStatus) return
+  if (loadingTextAnimationId) return
+
+  let dotCount = 1
+  loadingStatus.textContent = 'Loading.'
+  loadingTextAnimationId = window.setInterval(() => {
+    dotCount = (dotCount % 3) + 1
+    loadingStatus.textContent = `Loading${'.'.repeat(dotCount)}`
+  }, 320)
+}
+
+function stopLoadingTextAnimation() {
+  if (!loadingTextAnimationId) return
+  window.clearInterval(loadingTextAnimationId)
+  loadingTextAnimationId = null
 }
 
 function loadImageAsset(path) {
@@ -76,25 +94,26 @@ function loadHowlAsset(howl, label) {
 }
 
 async function preloadGameAssets() {
+  startLoadingTextAnimation()
   const uniqueImageAssets = [...new Set(imageAssetPaths)]
   const totalAssets = uniqueImageAssets.length + audioAssetHowls.length
   let doneAssets = 0
 
-  updateLoadingProgress(0, totalAssets, 'Loading images and audio assets...')
+  updateLoadingProgress(0, totalAssets)
 
   for (const imagePath of uniqueImageAssets) {
     await loadImageAsset(imagePath)
     doneAssets++
-    updateLoadingProgress(doneAssets, totalAssets, `Loading image: ${imagePath.split('/').pop()}`)
+    updateLoadingProgress(doneAssets, totalAssets)
   }
 
   for (const [index, howl] of audioAssetHowls.entries()) {
     await loadHowlAsset(howl, `audio-${index}`)
     doneAssets++
-    updateLoadingProgress(doneAssets, totalAssets, `Loading audio ${index + 1}/${audioAssetHowls.length}...`)
+    updateLoadingProgress(doneAssets, totalAssets)
   }
 
-  updateLoadingProgress(totalAssets, totalAssets, 'Loading complete. Starting game...')
+  updateLoadingProgress(totalAssets, totalAssets)
 }
 
 let hasStartedGame = false
@@ -106,7 +125,9 @@ async function startGame() {
   try {
     await preloadGameAssets()
   } catch (error) {
-    if (loadingStatus) loadingStatus.textContent = 'Some assets failed, starting anyway...'
+    if (loadingStatus) loadingStatus.textContent = 'Loading...'
+  } finally {
+    stopLoadingTextAnimation()
   }
 
   setTimeout(() => {
@@ -234,6 +255,27 @@ battleZonesMap.forEach((row, i) => {
       )
   })
 })
+
+if (battleZones.length === 0 && collisionsMap.length > 0) {
+  console.warn('battleZonesData empty. Building fallback encounter zones from walkable map tiles.')
+  collisionsMap.forEach((row, i) => {
+    row.forEach((symbol, j) => {
+      if (symbol === 0 && (i + j) % 9 === 0) {
+        battleZones.push(
+          new Boundary({
+            position: {
+              x: j * Boundary.width + offset.x,
+              y: i * Boundary.height + offset.y
+            }
+          })
+        )
+      }
+    })
+  })
+}
+
+const ENCOUNTER_CHANCE_PER_FRAME = 0.02
+const ENCOUNTER_MIN_OVERLAP_RATIO = 0.25
 
 const characters = []
 const villagerImg = new Image()
@@ -513,8 +555,8 @@ function animate(currentTime = 0) {
           rectangle1: player,
           rectangle2: battleZone
         }) &&
-        overlappingArea > (player.width * player.height) / 2 &&
-        Math.random() < 0.01
+        overlappingArea > player.width * player.height * ENCOUNTER_MIN_OVERLAP_RATIO &&
+        Math.random() < ENCOUNTER_CHANCE_PER_FRAME
       ) {
         // deactivate current animation loop
         resetOverworldInputState()
