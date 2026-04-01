@@ -1,5 +1,6 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
+c.imageSmoothingEnabled = false
 
 function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 resizeCanvas();
@@ -88,27 +89,27 @@ charactersMap.forEach((row, i) => {
     else if (symbol === 1031) {
       characters.push(
         new Character({
-          position : {
-            x : j * Boundary.width + offset.x,
-            y : i * Boundary.height + offset.y
-          } ,
-          image : oldManImg,
-          frames : {
-            max : 4,
-            hold : 60
-          } ,
-          scale : 3,
-          dialogue : ['My bones hurt .']
+          position: {
+            x: j * Boundary.width + offset.x,
+            y: i * Boundary.height + offset.y
+          },
+          image: oldManImg,
+          frames: {
+            max: 4,
+            hold: 60
+          },
+          scale: 3,
+          dialogue: ['My bones hurt .']
         })
       )
     }
 
     if (symbol !== 0) {
-      boundaries.push (
-        new Boundary( {
-          position : {
-            x : j * Boundary.width + offset.x,
-            y : i * Boundary.height + offset.y
+      boundaries.push(
+        new Boundary({
+          position: {
+            x: j * Boundary.width + offset.x,
+            y: i * Boundary.height + offset.y
           }
         })
       )
@@ -136,19 +137,19 @@ playerRightImage.src = './img/playerRight.png'
 
 const player = new Sprite({
   position: {
-    x : canvas.width / 2 - 192 / 4 / 2 - 250,
-    y : canvas.height / 2 - 68 / 2 - 115
-  } ,
-  image : playerDownImage,
-  frames : {
-    max : 4,
-    hold : 10
+    x: canvas.width / 2 - 192 / 4 / 2 - 250,
+    y: canvas.height / 2 - 68 / 2 - 115
   },
-  sprites : {
-    up : playerUpImage,
-    left : playerLeftImage,
-    right : playerRightImage,
-    down : playerDownImage
+  image: playerDownImage,
+  frames: {
+    max: 4,
+    hold: 10
+  },
+  sprites: {
+    up: playerUpImage,
+    left: playerLeftImage,
+    right: playerRightImage,
+    down: playerDownImage
   }
 })
 
@@ -241,6 +242,7 @@ function animate() {
         window.cancelAnimationFrame(animationId)
 
         audio.Map.stop()
+        audio.victory.stop()
         audio.initBattle.play()
         audio.battle.play()
 
@@ -480,7 +482,7 @@ window.addEventListener('keyup', (e) => {
 
 let clicked = false
 addEventListener('click', () => {
-  if (!clicked) {
+  if (!clicked && !battle.initiated) {
     audio.Map.play()
     clicked = true
   }

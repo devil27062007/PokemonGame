@@ -126,6 +126,98 @@
       white-space: nowrap;
     }
 
+    #monsterSelectionOverlay {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: none;
+      pointer-events: none;
+      background: transparent;
+    }
+
+    #userInterface.selection-mode #monsterSelectionOverlay {
+      display: block;
+    }
+
+    #userInterface.selection-mode .battle-status-card,
+    #userInterface.selection-mode #battleActionPanel,
+    #userInterface.selection-mode #dialogueBox {
+      display: none !important;
+    }
+
+    .monster-option {
+      position: absolute;
+      transform: translateX(-50%);
+      width: min(280px, 30vw);
+      top: 22vh;
+      bottom: 14vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      pointer-events: auto;
+      box-shadow: none;
+    }
+
+    .monster-option {
+      background: transparent;
+    }
+
+    .monster-option:hover {
+      background: transparent;
+    }
+
+    .monster-option-name {
+      font-size: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 4px solid black;
+      padding: 8px 14px;
+      transition: transform 0.14s ease, background-color 0.14s ease;
+    }
+
+    .monster-option-attacks {
+      font-size: 12px;
+      line-height: 1.5;
+      background: rgba(255, 255, 255, 0.92);
+      border: 4px solid black;
+      padding: 8px 12px;
+      transition: transform 0.14s ease, background-color 0.14s ease;
+    }
+
+    .monster-option:hover .monster-option-name,
+    .monster-option:hover .monster-option-attacks {
+      background: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .monster-option-left {
+      left: 22%;
+    }
+
+    .monster-option-mid {
+      left: 50%;
+    }
+
+    .monster-option-right {
+      left: 78%;
+    }
+
+    #selectionHint {
+      position: absolute;
+      top: 5vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.9);
+      border: 4px solid black;
+      padding: 8px 14px;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
     @media (max-width: 900px) {
       .battle-status-card {
         width: min(220px, 44vw);
@@ -140,6 +232,42 @@
       }
 
       .hp-value {
+        font-size: 10px;
+      }
+
+      .monster-option {
+        width: min(200px, 32vw);
+        top: 24vh;
+        bottom: 12vh;
+      }
+
+      .monster-option-name {
+        font-size: 12px;
+      }
+
+      .monster-option-attacks {
+        font-size: 9px;
+      }
+
+      .monster-option-left,
+      .monster-option-mid,
+      .monster-option-right {
+        left: auto;
+      }
+
+      .monster-option-left {
+        left: 20%;
+      }
+
+      .monster-option-mid {
+        left: 50%;
+      }
+
+      .monster-option-right {
+        left: 80%;
+      }
+
+      #selectionHint {
         font-size: 10px;
       }
     }
@@ -184,7 +312,7 @@
 
     <!-- Represents health bar of charmander (us) -->
     <div class="battle-status-card battle-status-bottom">
-      <h1 style="font-size: 16px">charmander</h1>
+      <h1 id="playerMonsterName" style="font-size: 16px">charmander</h1>
       <div class="hp-track">
         <div id="playerHealthBar" class="hp-fill"></div>
       </div>
@@ -193,7 +321,23 @@
 
     <div id="battleEffects"></div>
 
-    <div style="
+    <div id="monsterSelectionOverlay">
+      <div id="selectionHint">Choose Your Monster</div>
+      <button class="monster-option monster-option-left" data-monster-key="charmander">
+        <div class="monster-option-name">Charmander</div>
+        <div class="monster-option-attacks">Tackle, Fireball</div>
+      </button>
+      <button class="monster-option monster-option-mid" data-monster-key="bulbasaur">
+        <div class="monster-option-name">Bulbasaur</div>
+        <div class="monster-option-attacks">Tackle, Fireball</div>
+      </button>
+      <button class="monster-option monster-option-right" data-monster-key="squirtle">
+        <div class="monster-option-name">Squirtle</div>
+        <div class="monster-option-attacks">Tackle, Fireball</div>
+      </button>
+    </div>
+
+    <div id="battleActionPanel" style="
         background-color: white;
         height: 140px;
         position: absolute;

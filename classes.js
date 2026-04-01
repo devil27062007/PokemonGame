@@ -126,7 +126,7 @@ class Monster extends Sprite {
     audio.victory.play()
   }
 
-  attack({ attack, recipient, renderedSprites }) {
+  attack({ attack, recipient, renderedSprites, onComplete }) {
     document.querySelector('#dialogueBox').style.display = 'block'
     document.querySelector('#dialogueBox').innerHTML =
       this.name + ' used ' + attack.name
@@ -170,6 +170,8 @@ class Monster extends Sprite {
         repeat: 5,
         duration: 0.08
       })
+
+      if (onComplete) onComplete()
     }
     switch (attack.name) {
       case 'Fireball':

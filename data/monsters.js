@@ -15,6 +15,38 @@ const monsters = {
     name: 'charmander',
     attacks: [attacks.Tackle, attacks.Fireball]
   },
+  squirtle: {
+    position: {
+      x: 280,
+      y: 325
+    },
+    image: {
+      src: './img/squirtle.png'
+    },
+    frames: {
+      max: 4,
+      hold: 30
+    },
+    animate: true,
+    name: 'Squirtle',
+    attacks: [attacks.Tackle, attacks.Fireball]
+  },
+  bulbasaur: {
+    position: {
+      x: 280,
+      y: 325
+    },
+    image: {
+      src: './img/bulbasaur.png'
+    },
+    frames: {
+      max: 4,
+      hold: 30
+    },
+    animate: true,
+    name: 'Bulbasaur',
+    attacks: [attacks.Tackle, attacks.Fireball]
+  },
   Draggle: {
     position: {
       x: 800,
