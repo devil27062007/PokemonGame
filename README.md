@@ -63,5 +63,8 @@ The battle start when you walk on the encounter zones .
 - JavaScript
 - GSAP (animation)
 - Howler.js(audio)
+---
+# Note 
+- If keys didnt work tap the screen with mouse and the use w/a/s/d
 
 
