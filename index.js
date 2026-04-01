@@ -366,8 +366,13 @@ function ensureTownMapAudio() {
   }
 }
 
-const BASE_FRAME_DURATION = 1000 / 60
-const WORLD_SPEED_PER_BASE_FRAME = 3
+function getBaseFrameDuration() {
+  return 1000 / 60
+}
+
+function getWorldSpeedPerBaseFrame() {
+  return 3
+}
 let lastFrameTime = 0
 
 function resetOverworldInputState() {
@@ -419,7 +424,7 @@ function tryMoveWorld({ x, y }) {
 }
 
 function moveWorldInSteps({ x, y }) {
-  const maxStep = WORLD_SPEED_PER_BASE_FRAME
+  const maxStep = getWorldSpeedPerBaseFrame()
   const distance = Math.hypot(x, y)
 
   if (distance === 0) return
@@ -435,15 +440,16 @@ function moveWorldInSteps({ x, y }) {
 
 function animate(currentTime = 0) {
   const animationId = window.requestAnimationFrame(animate)
-  let deltaMs = BASE_FRAME_DURATION
+  const baseFrameDuration = getBaseFrameDuration()
+  let deltaMs = baseFrameDuration
   if (lastFrameTime !== 0) {
     deltaMs = currentTime - lastFrameTime
-    if (deltaMs > 250) deltaMs = BASE_FRAME_DURATION
+    if (deltaMs > 250) deltaMs = baseFrameDuration
   }
   lastFrameTime = currentTime
 
   const movementDistance =
-    WORLD_SPEED_PER_BASE_FRAME * (deltaMs / BASE_FRAME_DURATION)
+    getWorldSpeedPerBaseFrame() * (deltaMs / baseFrameDuration)
 
   c.clearRect(0, 0, canvas.width, canvas.height)
   if (worldBackdropImage.complete && worldBackdropImage.naturalWidth > 0) {

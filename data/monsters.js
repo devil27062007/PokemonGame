@@ -14,8 +14,8 @@ const monsters = {
     animate: true,
     name: 'charmander',
     attacks: [
-      attacks.Tackle,
       attacks.FlameBurst,
+      attacks.Tackle,
       attacks.CinderHeal,
       attacks.BlazingGuard
     ]
