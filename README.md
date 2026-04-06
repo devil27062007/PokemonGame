@@ -24,7 +24,7 @@ The battle start when you walk on the encounter zones .
 
 | Key | Action |
 |-----|--------|
-| W / A / S / D | Move |
+| W / A / S / D / Arrow Keys | Move |
 | Space | Talk / Continue dialogue |
 | Mouse Click | Attack / Continue battle messages |
 
@@ -65,6 +65,6 @@ The battle start when you walk on the encounter zones .
 - Howler.js(audio)
 ---
 # Note 
-- If keys didnt work tap the screen with mouse and the use w/a/s/d
+- If keys didnt work tap the screen with mouse and then use w/a/s/d or the arrow keys
 
 

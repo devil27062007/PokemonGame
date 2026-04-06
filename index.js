@@ -724,8 +724,28 @@ function animate(currentTime = 0) {
     moveWorldInSteps({ x: -movementDistance, y: 0 })
   }
 }
-// animate()
+
 let lastKey = ''
+
+function getMovementKey(key){
+  switch(key){
+    case 'w':
+    case 'ArrowUp':
+      return 'w'
+    case 'a':
+    case 'ArrowLeft':
+      return 'a'
+    case 's':
+    case 'ArrowDown':
+      return 's'
+    case 'd':
+    case 'ArrowRight':
+      return 'd';
+    default:
+      return ''
+  }
+}
+
 window.addEventListener('keydown', (e) => {
   ensureTownMapAudio()
 
@@ -766,42 +786,20 @@ window.addEventListener('keydown', (e) => {
       document.querySelector('#characterDialogueBox').style.display = 'flex'
       player.isInteracting = true
       break
-    case 'w':
-      keys.w.pressed = true
-      lastKey = 'w'
-      break
-    case 'a':
-      keys.a.pressed = true
-      lastKey = 'a'
-      break
-
-    case 's':
-      keys.s.pressed = true
-      lastKey = 's'
-      break
-
-    case 'd':
-      keys.d.pressed = true
-      lastKey = 'd'
-      break
   }
+
+  const movementKey = getMovementKey(e.key)
+  if (!movementKey) return
+
+  keys[movementKey].pressed = true
+  lastKey = movementKey
 })
 
 window.addEventListener('keyup', (e) => {
-  switch (e.key) {
-    case 'w':
-      keys.w.pressed = false
-      break
-    case 'a':
-      keys.a.pressed = false
-      break
-    case 's':
-      keys.s.pressed = false
-      break
-    case 'd':
-      keys.d.pressed = false
-      break
-  }
+  const movementKey = getMovementKey(e.key)
+  if (!movementKey) return
+
+  keys[movementKey].pressed = false
 })
 
 window.addEventListener('pointerdown', ensureTownMapAudio)
