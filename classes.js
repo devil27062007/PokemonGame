@@ -496,7 +496,7 @@ class Monster extends Sprite {
         applyShield()
         return
       }
-
+   
       const center = getMonsterCenter(this)
       const shield = createEffectNode({
         width: '56px',
