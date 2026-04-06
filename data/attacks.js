@@ -1,4 +1,11 @@
 const attacks = {
+  IceShard:{
+    name: 'Ice Shard',
+    kind: 'damage',
+    damage: 22,
+    type: 'Ice',
+    color:'#7fd9ff'
+  },
   Tackle: {
     name: 'Tackle',
     kind: 'damage',

@@ -525,6 +525,93 @@ class Monster extends Sprite {
       )
     }
 
+    const launchIceShard = () => {
+      if (!recipient) {
+        if (onComplete) onComplete()
+        return
+      }
+
+      const effectsLayer = document.querySelector('#battleEffects')
+      if (!effectsLayer) {
+        applyDamage(audio.tackleHit)
+        return
+      }
+
+      const timeline = gsap.timeline()
+      let chargeDistance = 15
+      if (this.isEnemy) chargeDistance = -15
+
+      timeline
+        .to(this.position, {
+          x: this.position.x - chargeDistance,
+          duration: 0.15
+        })
+        .to(this.position, {
+          x: this.position.x + chargeDistance,
+          duration: 0.25,
+          onStart: () => {
+            const start = getMonsterCenter(this)
+            const end = getMonsterCenter(recipient)
+
+            const shard = createEffectNode({
+              width: '22px',
+              height: '22px',
+              background: 'linear-gradient(135deg, #ffffff, #79dfff)',
+              boxShadow: '0 0 18px #79dfff, inset 0 0 10px rgba(255, 255, 255, 0.6)'
+            })
+            shard.style.left = `${start.x}px`
+            shard.style.top = `${start.y}px`
+            effectsLayer.append(shard)
+
+            gsap.to(shard, {
+              left: `${end.x}px`,
+              top: `${end.y}px`,
+              rotation: 720,
+              duration: 0.35,
+              ease: 'power2.out',
+              onComplete: () => {
+                const freezeBurst = createEffectNode({
+                  width: '56px',
+                  height: '56px',
+                  background:
+                    'radial-gradient(circle at 30% 30%, rgba(200, 240, 255, 0.3), rgba(121, 217, 255, 0.1))',
+                  boxShadow: '0 0 30px rgba(121, 217, 255, 0.7)'
+                })
+                freezeBurst.style.border = '3px solid rgba(121, 217, 255, 0.8)'
+                freezeBurst.style.left = `${end.x}px`
+                freezeBurst.style.top = `${end.y}px`
+                effectsLayer.append(freezeBurst)
+
+                gsap.fromTo(
+                  recipient,
+                  { opacity: 1 },
+                  {
+                    opacity: 0.7,
+                    yoyo: true,
+                    repeat: 1,
+                    duration: 0.15
+                  }
+                )
+
+                gsap.to(freezeBurst, {
+                  scale: 1.8,
+                  opacity: 0,
+                  duration: 0.4,
+                  onComplete: () => {
+                    freezeBurst.remove()
+                    applyDamage(audio.tackleHit)
+                    shard.remove()
+                  }
+                })
+              }
+            })
+          }
+        })
+        .to(this.position, {
+          x: this.position.x
+        })
+    }
+
     switch (attack.name) {
       case 'Fireball':
       case 'Flame Burst':
@@ -550,8 +637,12 @@ class Monster extends Sprite {
       case 'Vine Whip':
         applyDamage(audio.tackleHit)
         break
+      case 'Ice Shard':
+        launchIceShard()
+        break
       case 'Tackle':
         const tl = gsap.timeline()
+
 
         let movementDistance = 20
         if (this.isEnemy) movementDistance = -20

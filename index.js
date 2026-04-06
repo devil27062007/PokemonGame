@@ -1,19 +1,19 @@
-const canvas = document.querySelector('canvas')
-const c = canvas.getContext('2d')
-c.imageSmoothingEnabled = false
+const canvas = document.querySelector('canvas');
+const c = canvas.getContext('2d');
+c.imageSmoothingEnabled = false;
 
-const PLAYER_FRAME_WIDTH = 192 / 4
-const PLAYER_FRAME_HEIGHT = 68
+const PLAYER_FRAME_WIDTH = 192 / 4 ;
+const PLAYER_FRAME_HEIGHT = 68 ;
 const PLAYER_SCREEN_OFFSET = {
   x: -250,
   y: -115
-}
+};
 
-let player
-let movables = []
+let player;
+let movables = [];
 
 function updatePlayerScreenPosition({ preserveWorldPosition = false } = {}) {
-  if (!player) return
+  if (!player) return;
 
   const previousPosition = {
     x: player.position.x,
@@ -23,7 +23,7 @@ function updatePlayerScreenPosition({ preserveWorldPosition = false } = {}) {
   player.position.x = canvas.width / 2 - PLAYER_FRAME_WIDTH / 2 + PLAYER_SCREEN_OFFSET.x
   player.position.y = canvas.height / 2 - PLAYER_FRAME_HEIGHT / 2 + PLAYER_SCREEN_OFFSET.y
 
-  if (!preserveWorldPosition || movables.length === 0) return
+  if (!preserveWorldPosition || movables.length === 0) return;
 
   const deltaX = player.position.x - previousPosition.x
   const deltaY = player.position.y - previousPosition.y

@@ -38,7 +38,8 @@ const monsters = {
       attacks.ShockWave,
       attacks.AquaJet,
       attacks.TidalRecover,
-      attacks.BubbleBarrier
+      attacks.BubbleBarrier,
+      attacks.IceShard,
     ]
   },
   bulbasaur: {
