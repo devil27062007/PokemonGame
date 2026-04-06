@@ -66,5 +66,6 @@ The battle start when you walk on the encounter zones .
 ---
 # Note 
 - If keys didnt work tap the screen with mouse and then use w/a/s/d or the arrow keys
+- If you alrady played this game on your laptop just hard refresh your page for ne feature **Ctrl + f5** ,**Ctrl + Shift + R** for window, **Cmd (⌘) + Shift + R** for mac
 
 
